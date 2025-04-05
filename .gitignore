@@ -1,1 +1,5 @@
 get-pip.py
+kvshare-env/
+__pycache__/
+.DS_Store
+.env

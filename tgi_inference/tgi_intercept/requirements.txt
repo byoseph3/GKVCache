@@ -1,0 +1,6 @@
+text-generation
+sentence-transformers
+numpy
+torch
+requests
+fastapi
