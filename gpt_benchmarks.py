@@ -37,6 +37,8 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     
     # core latency metrics
     avg_time = sum(times) / runs
+    first_token_time = times[0]
+    rest_tokens_time = sum(times) - first_token_time
     times = times.sort()
     worst_time = times[0]
     best_time = times[runs]
@@ -45,6 +47,8 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     print(f"Best Inference Time: {best_time:.4f} sec")
     print(f"Median Inference Time: {median_time:.4f} sec")
     print(f"Worst Inference Time: {worst_time:.4f} sec")
+    print(f"First Token Generation Time: {first_token_time:.4f} sec")
+    print(f"Second Token to Last Token Generation Time: {rest_tokens_time:.4f} sec")
 
     # tokens per second
     num_tokens = max_length
