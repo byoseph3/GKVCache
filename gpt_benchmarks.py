@@ -26,14 +26,17 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
 
     times = []
     vram_usages = []
+    cpu_usages = []
+    thisProc = psutil.Process()
+    thisProc.cpu_percent()
 
     for _ in range(runs):
         start_time = time.time()
-        start_vram = psutil.virtual_memory().used
         with torch.no_grad(): # No gradient
             output_ids = model.generate(**inputs, max_length=max_length)
         times.append(time.time() - start_time)
-        vram_usages.append(psutil.virtual_memory().used - start_vram)
+        vram_usages.append(psutil.virtual_memory().percent)
+        cpu_usages.append(thisProc.cpu_percent())
 
         # decode
         response = tokenizer.decode(output_ids[0], skip_special_tokens=True)
@@ -44,8 +47,6 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     first_token_time = times[0]
     rest_tokens_time = sum(times) - first_token_time
     times.sort()
-    for i in times:
-        print(i)
     worst_time = times[0]
     best_time = times[runs-1]
     median_time = times[mid]
@@ -57,16 +58,29 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     print(f"First Token Generation Time: {first_token_time:.4f} sec")
     print(f"Second Token to Last Token Generation Time: {rest_tokens_time:.4f} sec")
 
+    # vram
     print("==========================")
-    avg_usage = sum(vram_usages) / runs
+    avg_vram_usage = sum(vram_usages) / runs
     vram_usages.sort()
     best_vram_usage = vram_usages[0]
     median_vram_usage = vram_usages[mid]
     worst_vram_usage = vram_usages[runs-1]
-    print(f"Average VRAM Usage: {avg_usage:.4f} bytes")
-    print(f"Best VRAM Usage: {best_vram_usage:.4f} bytes")
-    print(f"Median VRAM Usage: {median_vram_usage:.4f} bytes")
-    print(f"Worst VRAM Usage: {worst_vram_usage:.4f} bytes")
+    print(f"Average VRAM Usage: {avg_vram_usage:.4f} % VRAM Usage")
+    print(f"Best VRAM Usage: {best_vram_usage:.4f} % VRAM Usage")
+    print(f"Median VRAM Usage: {median_vram_usage:.4f} % VRAM Usage")
+    print(f"Worst VRAM Usage: {worst_vram_usage:.4f} % VRAM Usage")
+
+    # cpu usage
+    print("==========================")
+    avg_cpu_usage = sum(cpu_usages) / runs
+    cpu_usages.sort()
+    best_cpu_usage = cpu_usages[0]
+    median_cpu_usage = cpu_usages[mid]
+    worst_cpu_usage = cpu_usages[runs-1]
+    print(f"Average CPU Usage: {avg_cpu_usage:.4f} % CPU Usage")
+    print(f"Best CPU Usage: {best_cpu_usage:.4f} % CPU Usage")
+    print(f"Median CPU Usage: {median_cpu_usage:.4f} % CPU Usage")
+    print(f"Worst CPU Usage: {worst_cpu_usage:.4f} % CPU Usage")
 
     # tokens per second
     num_tokens = max_length
