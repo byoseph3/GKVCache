@@ -25,7 +25,7 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     _ = model.generate(**inputs, max_length=max_length)
 
     times = []
-    vram_usages = []
+    ram_usages = []
     cpu_usages = []
     thisProc = psutil.Process()
     thisProc.cpu_percent()
@@ -35,8 +35,8 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
         with torch.no_grad(): # No gradient
             output_ids = model.generate(**inputs, max_length=max_length)
         times.append(time.time() - start_time)
-        vram_usages.append(psutil.virtual_memory().percent)
-        cpu_usages.append(thisProc.cpu_percent())
+        ram_usages.append(psutil.virtual_memory().percent)
+        cpu_usages.append(thisProc.cpu_percent() / psutil.cpu_count())
 
         # decode
         response = tokenizer.decode(output_ids[0], skip_special_tokens=True)
@@ -58,17 +58,17 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     print(f"First Token Generation Time: {first_token_time:.4f} sec")
     print(f"Second Token to Last Token Generation Time: {rest_tokens_time:.4f} sec")
 
-    # vram
+    # ram
     print("==========================")
-    avg_vram_usage = sum(vram_usages) / runs
-    vram_usages.sort()
-    best_vram_usage = vram_usages[0]
-    median_vram_usage = vram_usages[mid]
-    worst_vram_usage = vram_usages[runs-1]
-    print(f"Average VRAM Usage: {avg_vram_usage:.4f} % VRAM Usage")
-    print(f"Best VRAM Usage: {best_vram_usage:.4f} % VRAM Usage")
-    print(f"Median VRAM Usage: {median_vram_usage:.4f} % VRAM Usage")
-    print(f"Worst VRAM Usage: {worst_vram_usage:.4f} % VRAM Usage")
+    avg_ram_usage = sum(ram_usages) / runs
+    ram_usages.sort()
+    best_ram_usage = ram_usages[0]
+    median_ram_usage = ram_usages[mid]
+    worst_ram_usage = ram_usages[runs-1]
+    print(f"Average RAM Usage: {avg_ram_usage:.4f} % RAM Usage")
+    print(f"Best RAM Usage: {best_ram_usage:.4f} % RAM Usage")
+    print(f"Median RAM Usage: {median_ram_usage:.4f} % RAM Usage")
+    print(f"Worst RAM Usage: {worst_ram_usage:.4f} % RAM Usage")
 
     # cpu usage
     print("==========================")
