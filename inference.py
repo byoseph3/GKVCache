@@ -56,14 +56,21 @@ def find_similar_cache(prompt_embedding, threshold, cache_dict):
 
     prompt_embedding_cpu_tuple = tuple(prompt_embedding.cpu().numpy())
 
+
+    # Cache Code
+    cache_hit = 0
+    cache_miss = 0
+
     valid_keys = [k for k in cache_dict.keys() if isinstance(k, tuple) and len(k) > 0]
     if not valid_keys:
+         cache_miss += 1
          return None, None, 0.0 # No valid keys
 
     try:
         cached_embeddings_list = [torch.tensor(k, device=device) for k in valid_keys]
 
         if not cached_embeddings_list:
+             cache_miss += 1
              return None, None, 0.0
 
         cached_embeddings_tensor = torch.stack(cached_embeddings_list)
@@ -71,6 +78,7 @@ def find_similar_cache(prompt_embedding, threshold, cache_dict):
         similarities = util.pytorch_cos_sim(prompt_embedding.to(device).unsqueeze(0), cached_embeddings_tensor)[0]
 
         if similarities.numel() == 0:
+             cache_miss += 1
              return None, None, 0.0
 
         best_match_idx = torch.argmax(similarities).item()
@@ -79,9 +87,11 @@ def find_similar_cache(prompt_embedding, threshold, cache_dict):
         if max_similarity >= threshold:
             original_key = valid_keys[best_match_idx]
             if original_key in cache_dict:
+                cache_hit += 1
                 best_match_prompt, best_match_cache = cache_dict[original_key]
                 return best_match_prompt, best_match_cache, max_similarity
             else:
+                cache_miss += 1
                 return None, None, max_similarity
 
     except Exception as e:
