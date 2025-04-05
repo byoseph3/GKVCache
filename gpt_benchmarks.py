@@ -29,11 +29,11 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
 
     for _ in range(runs):
         start_time = time.time()
-        start_vram = psutil.virtual_memory().available
+        start_vram = psutil.virtual_memory().used
         with torch.no_grad(): # No gradient
             output_ids = model.generate(**inputs, max_length=max_length)
         times.append(time.time() - start_time)
-        vram_usages.append(psutil.virtual_memory().available - start_vram)
+        vram_usages.append(psutil.virtual_memory().used - start_vram)
 
         # decode
         response = tokenizer.decode(output_ids[0], skip_special_tokens=True)
