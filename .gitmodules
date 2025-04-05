@@ -1,3 +1,0 @@
-[submodule "tgi"]
-	path = tgi
-	url = https://github.com/samuelshao1/text-generation-inference.git
