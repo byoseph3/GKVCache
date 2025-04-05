@@ -43,7 +43,9 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     avg_time = sum(times) / runs
     first_token_time = times[0]
     rest_tokens_time = sum(times) - first_token_time
-    times = times.sort()
+    times.sort()
+    for i in times:
+        print(i)
     worst_time = times[0]
     best_time = times[runs]
     median_time = times[mid]
@@ -57,7 +59,7 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
 
     print("==========================")
     avg_usage = sum(vram_usages) / runs
-    vram_usages = vram_usages.sort()
+    vram_usages.sort()
     best_vram_usage = vram_usages[0]
     median_vram_usage = vram_usages[mid]
     worst_vram_usage = vram_usages[runs]
