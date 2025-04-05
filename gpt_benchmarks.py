@@ -103,11 +103,8 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
         # Cache Lookup Time
         pass
 
-    # Resource Metrics
-    # GPU
-    # CPU
+    # Resource Metrics (left to implement)
     # VRAM
-    # RAM
     # Energy Consumption (?)
 
     # memory or vram usage
