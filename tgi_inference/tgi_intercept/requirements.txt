@@ -3,3 +3,4 @@ sentence-transformers
 numpy
 torch
 requests
+fastapi

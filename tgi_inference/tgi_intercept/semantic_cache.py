@@ -15,6 +15,11 @@ from sentence_transformers import SentenceTransformer
 # Diagonistic Script
 import diagnostic
 
+# Access tokenzizer model 
+from transformers import AutoTokenizer
+tokenizer = AutoTokenizer.from_pretrained("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+
+
 EMBEDDINGG_MODEL = 'all-MiniLM-L6-v2'
 SIMILARITY_THRESHOLD = 0.8
 
@@ -107,15 +112,24 @@ class SemanticCacheManager:
         
         query_embedding = self.embedding_function(prompt)
 
+        print(f"Query embedding: {query_embedding}")
         # Find the most similar prompt in the cache.
         best_cache_id = None
         best_similarity = 0.0
 
+        print(f"Cache Items: {self.cache.items()}")
         for cache_id, entry in self.cache.items():
 
             cached_embedding = entry.embedding
             
             cos_sim = self._cos_sim(query_embedding, cached_embedding)
+            
+            print(f"Comparing with cache ID {cache_id} with embedding {cached_embedding}, similarity: {cos_sim}")
+
+            if cos_sim > best_similarity:
+                best_similarity = cos_sim
+                best_cache_id = cache_id
+                print(f"New best cache ID: {best_cache_id}, similarity: {best_similarity}")
 
         if best_similarity > self.similarity_threshold:
             return best_cache_id, best_similarity
@@ -160,7 +174,8 @@ class SemanticCacheManager:
             Tuple[bool, Optional[str], float]: Representation of (cache hit status, cache_id, similarity score).
             Returns (False, None, 0.0) if no similar prompt is found.
         """
-
+        print(f"Processing request {req_id} with prompt: {prompt}")
+        
         cache_id, similarity = self.find_similar_prompts(prompt)
 
         if cache_id:
@@ -180,7 +195,7 @@ class SemanticCacheManager:
         # No matches
         self.stats["misses"] += 1
         print(f"No cache hit for prompt: {prompt}")
-        return False, None, 0.0
+        return False, None, 0.0, None
     
     def on_req_end(self, prompt: str, req_id: int, prefix_pos: int) -> Optional[str]:
         """
@@ -216,6 +231,7 @@ class SemanticCacheManager:
             embedding=embedding,
             req_id=req_id,
             prefix_pos=prefix_pos,
+            timestamp=time.time()
         )
 
         # Update sid_cid mapping
@@ -367,7 +383,14 @@ class SemanticTGIRouter:
         if req_id in self.active_requests and not self.active_requests[req_id].get("using_cache", False):
             
             # extract prefix position from the response
-            prefix_pos = response.details.prefill_tokens_count
+            tokens = tokenizer.encode(prompt)
+            prefix_pos = len(tokens)
+            
+            print(f"Token IDs: {tokens}")
+            decoded_tokens = [tokenizer.decode([token_id]) for token_id in tokens]
+            print(f"Decoded tokens: {decoded_tokens}")
+            
+            print(f"Calculated prefix_pos: {prefix_pos} tokens for prompt: {prompt}")
 
             # store in semantic cache
             self.cache_manager.on_req_end(prompt, req_id, prefix_pos)
