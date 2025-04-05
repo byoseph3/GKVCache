@@ -1,0 +1,13 @@
+tokenizer.model: 100%|██████████████████████████████████████████████████████| 500k/500k [00:00<00:00, 12.1MB/s]
+tokenizer.json: 100%|█████████████████████████████████████████████████████| 1.84M/1.84M [00:00<00:00, 12.8MB/s]
+special_tokens_map.json: 100%|████████████████████████████████████████████████| 551/551 [00:00<00:00, 2.22MB/s]
+config.json: 100%|████████████████████████████████████████████████████████████| 608/608 [00:00<00:00, 2.26MB/s]
+model.safetensors: 100%|██████████████████████████████████████████████████| 2.20G/2.20G [05:36<00:00, 6.55MB/s]
+generation_config.json: 100%|██████████████████████████████████████████████████| 124/124 [00:00<00:00, 398kB/s]
+
+
+Average Inference Time: 8.2853 sec
+Tokens per second: 6.03
+What is hugging face?
+
+Hugging Face is a platform that allows users to create and share customizable avatars, including animated faces, expressions, and body language. The platform is designed to help people communicate more effectively
