@@ -47,7 +47,7 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     for i in times:
         print(i)
     worst_time = times[0]
-    best_time = times[runs]
+    best_time = times[runs-1]
     median_time = times[mid]
     print("==========================")
     print(f"Average Inference Time: {avg_time:.4f} sec")
@@ -62,7 +62,7 @@ def bench(prompt, max_length=50, runs=5, isCached=False, isDistributed=False):
     vram_usages.sort()
     best_vram_usage = vram_usages[0]
     median_vram_usage = vram_usages[mid]
-    worst_vram_usage = vram_usages[runs]
+    worst_vram_usage = vram_usages[runs-1]
     print(f"Average VRAM Usage: {avg_usage:.4f} bytes")
     print(f"Best VRAM Usage: {best_vram_usage:.4f} bytes")
     print(f"Median VRAM Usage: {median_vram_usage:.4f} bytes")
